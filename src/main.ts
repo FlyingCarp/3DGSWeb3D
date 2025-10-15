@@ -1,6 +1,9 @@
 import { Color, createGraphicsDevice } from 'playcanvas';
 
 import { registerCameraPosesEvents } from './camera-poses';
+import { POISystem } from './poi-system';
+import { Vec3 } from 'playcanvas';
+import { SceneManager } from './scene-manager';
 import { registerDocEvents } from './doc';
 import { EditHistory } from './edit-history';
 import { registerEditorEvents } from './editor';
@@ -252,7 +255,38 @@ const main = async () => {
 
     // load async models
     scene.start();
+     // ✅ 1. 先初始化场景管理器
+    console.log('初始化场景管理器...');
+    const sceneManager = new SceneManager(scene, events);
+    
+    // 暴露到全局，便于调试
+    (window as any).sceneManager = sceneManager;
 
+    // ✅ 2. 加载主场景（通过场景管理器）
+    await events.invoke('import', [{
+        filename: 'SSLake.ply',
+        url: '/media/SplattingFile/SSLake.ply'
+    }]);
+
+    // ✅ 3. 设置主场景相机位置
+    const camera = scene.camera;
+    camera.setPose(
+        new Vec3(-3.5739870071411133, 8.027021408081055, 0.7438146471977234),
+        new Vec3(0.9115669929031545, -4.710339847395481, 1.96341514830072),
+        0
+    );
+
+    // ✅ 4. 初始化POI系统
+    console.log('初始化POI系统...');
+    const poiSystem = new POISystem(scene, events);
+    poiSystem.createPOIMarkers();
+    
+    (window as any).poiSystem = poiSystem;
+    
+    // ✅ 5. 使用事件系统更新POI和场景管理器
+    events.on('update', (deltaTime: number) => {
+        poiSystem.update(deltaTime);
+    });
     // handle load params
     const loadList = url.searchParams.getAll('load');
     for (const value of loadList) {

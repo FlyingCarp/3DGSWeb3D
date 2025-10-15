@@ -18,11 +18,11 @@ const sceneConfig = {
         exposure: 1.0,
         toneMapping: 'linear',
         debugRender: '',
-        overlay: true
+        overlay: false //默认关闭camera overlay ，这个参数对应加载完模型后的所有splats染色为蓝色的功能
     },
     show: {
-        grid: true,
-        bound: true,
+        grid: false,// initgrid 无限网格 默认关闭
+        bound: false,// 加入模型后周围生成的立方体 默认关闭
         shBands: 3
     },
     controls: {

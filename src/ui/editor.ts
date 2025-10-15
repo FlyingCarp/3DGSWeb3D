@@ -113,25 +113,25 @@ class EditorUI {
         tooltipsContainer.append(tooltips);
 
         // bottom toolbar
-        const scenePanel = new ScenePanel(events, tooltips);
+        //const scenePanel = new ScenePanel(events, tooltips);
         const viewPanel = new ViewPanel(events, tooltips);
         const colorPanel = new ColorPanel(events, tooltips);
-        const bottomToolbar = new BottomToolbar(events, tooltips);
-        const rightToolbar = new RightToolbar(events, tooltips);
-        const modeToggle = new ModeToggle(events, tooltips);
-        const menu = new Menu(events);
+        //const bottomToolbar = new BottomToolbar(events, tooltips);
+        //const rightToolbar = new RightToolbar(events, tooltips);
+        //const modeToggle = new ModeToggle(events, tooltips);
+        //const menu = new Menu(events);
 
         canvasContainer.dom.appendChild(canvas);
         canvasContainer.append(appLabel);
         canvasContainer.append(cursorLabel);
         canvasContainer.append(toolsContainer);
-        canvasContainer.append(scenePanel);
+        //canvasContainer.append(scenePanel);
         canvasContainer.append(viewPanel);
         canvasContainer.append(colorPanel);
-        canvasContainer.append(bottomToolbar);
-        canvasContainer.append(rightToolbar);
-        canvasContainer.append(modeToggle);
-        canvasContainer.append(menu);
+        //canvasContainer.append(bottomToolbar);
+        //canvasContainer.append(rightToolbar);
+        //canvasContainer.append(modeToggle);
+        //canvasContainer.append(menu);
 
         // view axes container
         const viewCube = new ViewCube(events);
@@ -145,12 +145,12 @@ class EditorUI {
             id: 'main-container'
         });
 
-        const timelinePanel = new TimelinePanel(events, tooltips);
-        const dataPanel = new DataPanel(events);
+        //const timelinePanel = new TimelinePanel(events, tooltips);
+        //const dataPanel = new DataPanel(events);
 
         mainContainer.append(canvasContainer);
-        mainContainer.append(timelinePanel);
-        mainContainer.append(dataPanel);
+        //mainContainer.append(timelinePanel);
+        //mainContainer.append(dataPanel);
 
         editorContainer.append(mainContainer);
 
@@ -244,7 +244,7 @@ class EditorUI {
             return this.popup.show({
                 type: 'info',
                 header: 'About',
-                message: `SUPERSPLAT v${version}`
+                message: `数据驱动材料科研团队 技术支持 v${version}`
             });
         });
 
