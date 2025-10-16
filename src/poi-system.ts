@@ -60,8 +60,8 @@ class POISystem {
                 name: 'A4',
                 position: new Vec3(0.6, -1.2, 0.5),
                 description: 'A4区域详细视图',
-                targetSceneId: 'A4',  // 切换到A4场景
-                cameraPos: new Vec3(0, 2, 5),
+                targetSceneId: 'A4',  // 1切换到A4场景
+                cameraPos: new Vec3(1.31, 0.23, 3.2),
                 cameraTarget: new Vec3(0, 0, 0)
             },
             {

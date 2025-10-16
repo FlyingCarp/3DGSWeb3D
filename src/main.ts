@@ -121,7 +121,7 @@ const main = async () => {
         depth: false,
         stencil: false,
         xrCompatible: false,
-        powerPreference: 'high-performance'
+        powerPreference: 'low-power'
     });
 
     const overrides = [
@@ -264,8 +264,8 @@ const main = async () => {
 
     // ✅ 2. 加载主场景（通过场景管理器）
     await events.invoke('import', [{
-        filename: 'SSLake.ply',
-        url: '/media/SplattingFile/SSLake.ply'
+        filename: 'SSLake_Merge.sog',
+        url: '/media/SplattingFiles/SSLake_Merge.sog'
     }]);
 
     // ✅ 3. 设置主场景相机位置
