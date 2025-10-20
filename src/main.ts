@@ -264,8 +264,8 @@ const main = async () => {
 
     // ✅ 2. 加载主场景（通过场景管理器）
     await events.invoke('import', [{
-        filename: 'SSLake_Merge.sog',
-        url: '/media/SplattingFiles/SSLake_Merge.sog'
+        filename: 'meta.json',
+        url: '/media/SplattingFiles/scene_SSLake_Merge_clear3/meta.json'
     }]);
 
     // ✅ 3. 设置主场景相机位置
