@@ -2,6 +2,7 @@ import { Color, createGraphicsDevice } from 'playcanvas';
 
 import { registerCameraPosesEvents } from './camera-poses';
 import { POISystem } from './poi-system';
+import { RevealEffect } from './RevealEffect';
 import { Vec3 } from 'playcanvas';
 import { SceneManager } from './scene-manager';
 import { registerDocEvents } from './doc';
@@ -275,6 +276,16 @@ const main = async () => {
         new Vec3(0.9115669929031545, -4.710339847395481, 1.96341514830072),
         0
     );
+    
+    // ⚡ 在这里添加渐进展示效果
+    const revealEffect = new RevealEffect(editorUI.canvas);
+    (window as any).revealEffect = revealEffect; // 方便调试
+
+    // 等待第一帧渲染
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    // 开始动画
+    await revealEffect.start();
 
     // ✅ 4. 初始化POI系统
     console.log('初始化POI系统...');
