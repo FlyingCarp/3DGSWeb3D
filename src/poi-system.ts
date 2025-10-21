@@ -60,9 +60,7 @@ class POISystem {
                 name: 'A4',
                 position: new Vec3(0.6, -1.2, 0.5),
                 description: 'A4区域详细视图',
-                targetSceneId: 'A4',  // 1切换到A4场景
-                cameraPos: new Vec3(1.31, 0.23, 3.2),
-                cameraTarget: new Vec3(0, 0, 0)
+
             },
             {
                 id: 'poi_5',
@@ -228,20 +226,14 @@ class POISystem {
             }
         } else {
             // 仅调整相机位置（不切换场景）
-            if (poi.cameraPos && poi.cameraTarget) {
-                const message = `${poi.name}\n${poi.description}\n\n是否导航到此位置？`;
-                const result = confirm(message);
-                
-                if (result) {
+
                     console.log(`导航到: ${poi.name}`);
                     const camera = this.scene.camera;
                     camera.setPose(poi.cameraPos, poi.cameraTarget, 1);
                     this.events.fire('poi.navigate', poi);
-                }
-            } else {
-                // 仅显示信息
-                alert(`${poi.name}\n${poi.description}`);
-            }
+                            
+            
+            
         }
     }
 

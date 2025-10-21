@@ -2,7 +2,7 @@ import { Color, createGraphicsDevice } from 'playcanvas';
 
 import { registerCameraPosesEvents } from './camera-poses';
 import { POISystem } from './poi-system';
-import { RevealEffect } from './RevealEffect';
+
 import { Vec3 } from 'playcanvas';
 import { SceneManager } from './scene-manager';
 import { registerDocEvents } from './doc';
@@ -266,26 +266,22 @@ const main = async () => {
     // ✅ 2. 加载主场景（通过场景管理器）
     await events.invoke('import', [{
         filename: 'meta.json',
-        url: '/media/SplattingFiles/scene_SSLake_Merge_clear3/meta.json'
+        url: '/media/SplattingFiles/SSLake_optimized_mobile/meta.json'
     }]);
 
     // ✅ 3. 设置主场景相机位置
     const camera = scene.camera;
     camera.setPose(
-        new Vec3(-3.5739870071411133, 8.027021408081055, 0.7438146471977234),
-        new Vec3(0.9115669929031545, -4.710339847395481, 1.96341514830072),
+        /*
+        {x: -1.0034375190734863,  -1.5415197610855103, -1.2331403493881226} target:
+         {x: 1.3900514678059763, -3.3267045145646383, -1.4000588011701596}
+
+        */
+        new Vec3( -1.0034375190734863,  -1.5415197610855103, -1.2331403493881226),
+        new Vec3(1.3900514678059763, -3.3267045145646383, -1.4000588011701596),
         0
     );
     
-    // ⚡ 在这里添加渐进展示效果
-    const revealEffect = new RevealEffect(editorUI.canvas);
-    (window as any).revealEffect = revealEffect; // 方便调试
-
-    // 等待第一帧渲染
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // 开始动画
-    await revealEffect.start();
 
     // ✅ 4. 初始化POI系统
     console.log('初始化POI系统...');
