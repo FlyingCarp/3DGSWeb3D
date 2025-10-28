@@ -2,7 +2,8 @@ import { Color, createGraphicsDevice } from 'playcanvas';
 
 import { registerCameraPosesEvents } from './camera-poses';
 import { POISystem } from './poi-system';
-import { RevealEffect } from './RevealEffect';
+import { StartOverlay } from './start_overlay';
+
 import { Vec3 } from 'playcanvas';
 import { SceneManager } from './scene-manager';
 import { registerDocEvents } from './doc';
@@ -103,18 +104,25 @@ const initShortcuts = (events: Events) => {
 };
 
 const main = async () => {
+    const startOverlay = new StartOverlay();
+    (window as any).startOverlay = startOverlay;
+    
+    // 让浏览器渲染 DOM（关键的一行！）
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    
+     
     // root events object
     const events = new Events();
 
     // url
     const url = new URL(window.location.href);
-
+     
     // edit history
     const editHistory = new EditHistory(events);
 
     // editor ui
     const editorUI = new EditorUI(events);
-
+     
     // create the graphics device
     const graphicsDevice = await createGraphicsDevice(editorUI.canvas, {
         deviceTypes: ['webgl2'],
@@ -124,7 +132,7 @@ const main = async () => {
         xrCompatible: false,
         powerPreference: 'low-power'
     });
-
+     
     const overrides = [
         getURLArgs()
     ];
@@ -139,7 +147,7 @@ const main = async () => {
         editorUI.canvas,
         graphicsDevice
     );
-
+     
     // colors
     const bgClr = new Color();
     const selectedClr = new Color();
@@ -152,7 +160,7 @@ const main = async () => {
             events.fire(event, target);
         }
     };
-
+     
     const setBgClr = (clr: Color) => {
         setClr(bgClr, clr, 'bgClr');
     };
@@ -205,7 +213,7 @@ const main = async () => {
     events.on('lockedClr', (clr: Color) => {
         scene.forceRender = true;
     });
-
+     
     // initialize colors from application config
     const toColor = (value: { r: number, g: number, b: number, a: number }) => {
         return new Color(value.r, value.g, value.b, value.a);
@@ -258,6 +266,7 @@ const main = async () => {
     scene.start();
      // ✅ 1. 先初始化场景管理器
     console.log('初始化场景管理器...');
+     
     const sceneManager = new SceneManager(scene, events);
     
     // 暴露到全局，便于调试
@@ -266,26 +275,22 @@ const main = async () => {
     // ✅ 2. 加载主场景（通过场景管理器）
     await events.invoke('import', [{
         filename: 'meta.json',
-        url: '/media/SplattingFiles/scene_SSLake_Merge_clear3/meta.json'
+        url: '/media/SplattingFiles/SSLake_optimized_mobile/meta.json'
     }]);
 
     // ✅ 3. 设置主场景相机位置
     const camera = scene.camera;
     camera.setPose(
-        new Vec3(-3.5739870071411133, 8.027021408081055, 0.7438146471977234),
-        new Vec3(0.9115669929031545, -4.710339847395481, 1.96341514830072),
+        /*
+      position: {x: -3.1661136150360107,  0.09750718623399734,  -1.3463666439056396} 
+      target: {x: 1.3880620386053981,  -3.2992265554911486,  -1.663968201960596}
+
+        */
+        new Vec3( -3.1661136150360107,  0.09750718623399734,  -1.3463666439056396),
+        new Vec3(1.3880620386053981,  -3.2992265554911486,  -1.663968201960596),
         0
     );
     
-    // ⚡ 在这里添加渐进展示效果
-    const revealEffect = new RevealEffect(editorUI.canvas);
-    (window as any).revealEffect = revealEffect; // 方便调试
-
-    // 等待第一帧渲染
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // 开始动画
-    await revealEffect.start();
 
     // ✅ 4. 初始化POI系统
     console.log('初始化POI系统...');
@@ -293,10 +298,10 @@ const main = async () => {
     poiSystem.createPOIMarkers();
     
     (window as any).poiSystem = poiSystem;
-    
+    startOverlay.hide();
     // ✅ 5. 使用事件系统更新POI和场景管理器
     events.on('update', (deltaTime: number) => {
-        poiSystem.update(deltaTime);
+        poiSystem.update(deltaTime); 
     });
     // handle load params
     const loadList = url.searchParams.getAll('load');

@@ -38,67 +38,65 @@ class POISystem {
             {
                 id: 'poi_1',
                 name: 'A1',
-                position: new Vec3(0, -1.5, -2.5),
-                description: '湖泊的最佳观赏位置'
+                position: new Vec3(-0.9, -1.6, -2.9),
+                description: '食堂、酒店所在位置'
             },
             {
                 id: 'poi_2', 
                 name: 'A2',
-                position: new Vec3(-1.6, -1.2, -0.6),
-                description: '历史悠久的码头遗址',
+                position: new Vec3(-1, -1.4, -1),//(y,h,x)
+                description: 'A2区域',
                 cameraPos: new Vec3(-4.1816086769104, 0.9447703957557678, -1.489044189453125),
                 cameraTarget: new Vec3(2.882621562515408, -4.432813432221651, 0.4316858534445833)
             },  
             {
                 id: 'poi_3',
                 name: 'A3',
-                position: new Vec3(-1.6, -1.2, 0.9),
-                description: '俯瞰整个湖区的最佳摄影点'
+                position: new Vec3(-0.35, -1.2, 0.5),
+                description: 'A3区域'
             },
             {
                 id: 'poi_4',
                 name: 'A4',
-                position: new Vec3(0.6, -1.2, 0.5),
-                description: 'A4区域详细视图',
-                targetSceneId: 'A4',  // 1切换到A4场景
-                cameraPos: new Vec3(1.31, 0.23, 3.2),
-                cameraTarget: new Vec3(0, 0, 0)
+                position: new Vec3(1.2, -1.2, -0.9),
+                description: 'A4区域',
+
             },
             {
                 id: 'poi_5',
                 name: 'B1',
-                position: new Vec3(0.4, -1.2, 2.8),
-                description: 'B1区域'
+                position: new Vec3(1.8, -1, 1.5),
+                description: '行政楼'
             },
             {
                 id: 'poi_6',
                 name: 'B2',
-                position: new Vec3(0.8, -1.2, 3.4),
-                description: 'B2区域'
+                position: new Vec3(2.8, -0.8, 2.15),
+                description: 'B2宿舍楼'
             },
             {
                 id: 'poi_7',
                 name: 'B3',
-                position: new Vec3(1.8, -1.2, 1.7),
-                description: 'B3区域'
+                position: new Vec3(3, -1, -0.1),
+                description: 'B3宿舍楼、商店、快递收发室'
             },
             {
                 id: 'poi_8',
                 name: 'B4',
-                position: new Vec3(2.5, -1.2, 2.3),
-                description: 'B4区域'
+                position: new Vec3(3.95, -0.8, 0.25),
+                description: 'B4宿舍楼'
             },
             {
                 id: 'poi_9',
-                name: 'C1',
-                position: new Vec3(1, -1.2, 1),
-                description: 'C1区域'
+                name: 'C1会议中心',
+                position: new Vec3(-1, -1.1, 3.5),
+                description: '会议中心C栋'
             },
             {
                 id: 'poi_10',
                 name: '专家楼',
-                position: new Vec3(4, -1.2, 4),
-                description: '专家楼区域'
+                position: new Vec3(1.2, -0.8, 5),
+                description: '专家服务楼'
             }
         ];
 
@@ -153,43 +151,95 @@ class POISystem {
         });
     }
 
-    private createPOIElement(poi: POIData): HTMLElement {
-        const element = document.createElement('div');
-        element.style.cssText = `
-            position: absolute;
-            width: 32px;
-            height: 32px;
-            background-image: url('/media/images/poi-icon.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            cursor: pointer;
-            pointer-events: auto;
-            transform: translate(-50%, -50%);
-            transition: transform 0.2s ease;
-        `;
+private createPOIElement(poi: POIData): HTMLElement {
+    const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+    
+    // 使用 wrapper 强制横向布局
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = `
+        position: absolute;
+        transform: translate(-50%, -50%);
+        pointer-events: auto;
+    `;
 
-        element.addEventListener('mouseenter', (e) => {
-            element.style.transform = 'translate(-50%, -50%) scale(1.2)';
-            this.showTooltip(e.clientX, e.clientY, poi);
-        });
+    // 内部容器
+    const container = document.createElement('div');
+    container.style.cssText = `
+        display: table;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    `;
 
-        element.addEventListener('mouseleave', () => {
-            element.style.transform = 'translate(-50%, -50%) scale(1)';
-            this.hideTooltip();
-        });
+    // 图标单元格
+    const iconCell = document.createElement('div');
+    iconCell.style.cssText = `
+        display: table-cell;
+        vertical-align: middle;
+        padding-right: 6px;
+    `;
 
-        element.addEventListener('mousemove', (e) => {
-            this.showTooltip(e.clientX, e.clientY, poi);
-        });
+    // POI 图标
+    const icon = document.createElement('div');
+    icon.style.cssText = `
+        width: 32px;
+        height: 32px;
+        background-image: url('/media/images/poi-icon.png');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+    `;
+    iconCell.appendChild(icon);
 
-        element.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.onPoiClick(poi);
-        });
+    // 文字单元格
+    const textCell = document.createElement('div');
+    textCell.style.cssText = `
+        display: table-cell;
+        vertical-align: middle;
+    `;
 
-        return element;
-    }
+    // POI 名称标签
+    const label = document.createElement('span');
+    label.textContent = poi.name;
+    label.style.fontFamily = `"Source Han Sans SC", "Noto Sans SC", "Microsoft YaHei", sans-serif`;
+    label.style.cssText = `
+        color: white;
+        font-size: 17px;
+        text-shadow: 
+            -1px -1px 2px rgba(0,0,0,0.8),
+            1px -1px 2px rgba(0,0,0,0.8),
+            -1px 1px 2px rgba(0,0,0,0.8),
+            1px 1px 2px rgba(0,0,0,0.8);
+        white-space: nowrap;
+        user-select: none;
+    `;
+    textCell.appendChild(label);
+
+    container.appendChild(iconCell);
+    container.appendChild(textCell);
+    wrapper.appendChild(container);
+
+    // 事件监听
+    wrapper.addEventListener('mouseenter', (e) => {
+        container.style.transform = 'scale(1.2)';
+        this.showTooltip(e.clientX, e.clientY, poi);
+    });
+
+    wrapper.addEventListener('mouseleave', () => {
+        container.style.transform = 'scale(1)';
+        this.hideTooltip();
+    });
+
+    wrapper.addEventListener('mousemove', (e) => {
+        this.showTooltip(e.clientX, e.clientY, poi);
+    });
+
+    wrapper.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.onPoiClick(poi);
+    });
+
+    return wrapper;
+}
 
     private showTooltip(x: number, y: number, poi: POIData) {
         this.tooltipElement.innerHTML = `
@@ -228,20 +278,14 @@ class POISystem {
             }
         } else {
             // 仅调整相机位置（不切换场景）
-            if (poi.cameraPos && poi.cameraTarget) {
-                const message = `${poi.name}\n${poi.description}\n\n是否导航到此位置？`;
-                const result = confirm(message);
-                
-                if (result) {
+
                     console.log(`导航到: ${poi.name}`);
                     const camera = this.scene.camera;
                     camera.setPose(poi.cameraPos, poi.cameraTarget, 1);
                     this.events.fire('poi.navigate', poi);
-                }
-            } else {
-                // 仅显示信息
-                alert(`${poi.name}\n${poi.description}`);
-            }
+                            
+            
+            
         }
     }
 

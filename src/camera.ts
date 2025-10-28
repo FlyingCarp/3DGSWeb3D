@@ -3,6 +3,7 @@ import {
     ADDRESS_CLAMP_TO_EDGE,
     FILTER_NEAREST,
     PIXELFORMAT_RGBA8,
+    PIXELFORMAT_RGB565,
     PIXELFORMAT_DEPTH,
     PROJECTION_ORTHOGRAPHIC,
     PROJECTION_PERSPECTIVE,
@@ -29,6 +30,11 @@ import { Element, ElementType } from './element';
 import { Serializer } from './serializer';
 import { Splat } from './splat';
 import { TweenValue } from './tween-value';
+
+// ===== 移动端检测工具函数 =====
+const isMobileDevice = () => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
 
 // calculate the forward vector given azimuth and elevation
 const calcForwardVec = (result: Vec3, azim: number, elev: number) => {
@@ -80,11 +86,22 @@ class Camera extends Element {
 
     updateCameraUniforms: () => void;
 
+    // ===== 性能监控属性 =====
+    private frameCount = 0;
+    private fpsFrameCount = 0;
+    private lastFPSCheck = 0;
+    private currentFPS = 60;
+    private adaptiveQuality = 1.0;
+    private isMobile = false;
+
     constructor() {
         super(ElementType.camera);
         // create the camera entity
         this.entity = new Entity('Camera');
         this.entity.addComponent('camera');
+
+        // 检测是否为移动设备
+        this.isMobile = isMobileDevice();
 
         // NOTE: this call is needed for refraction effect to work correctly, but
         // it slows rendering and should only be made when required.
@@ -324,6 +341,11 @@ class Camera extends Element {
             set('far_x', va.sub2(points[4], points[7]));
             set('far_y', va.sub2(points[6], points[7]));
         };
+
+        // 移动端性能优化提示
+        if (this.isMobile) {
+            console.log('📱 移动端优化已启用: 纹理优化 (RGB565)、自适应帧率、视锥剔除优化');
+        }
     }
 
     remove() {
@@ -379,11 +401,18 @@ class Camera extends Element {
         }
 
         const createTexture = (name: string, width: number, height: number, format: number) => {
+            // ===== 移动端纹理格式优化 =====
+            // 只对工作缓冲使用RGB565，主渲染缓冲保持RGBA8以支持透明度
+            let actualFormat = format;
+            if (this.isMobile && format === PIXELFORMAT_RGBA8 && name === 'workColor') {
+                actualFormat = PIXELFORMAT_RGB565;
+            }
+
             return new Texture(device, {
                 name,
                 width,
                 height,
-                format,
+                format: actualFormat,
                 mipmaps: false,
                 minFilter: FILTER_NEAREST,
                 magFilter: FILTER_NEAREST,
@@ -423,6 +452,34 @@ class Camera extends Element {
         // controller update
         this.controller.update(deltaTime);
 
+        // ===== 自适应帧率系统 =====
+        if (this.isMobile) {
+            this.fpsFrameCount++;
+            this.lastFPSCheck += deltaTime;
+
+            // 每秒检查一次 FPS
+            if (this.lastFPSCheck >= 1.0) {
+                this.currentFPS = this.fpsFrameCount / this.lastFPSCheck;
+                this.fpsFrameCount = 0;
+                this.lastFPSCheck = 0;
+
+                // 动态调整质量
+                if (this.currentFPS < 25) {
+                    // 帧率过低，降低质量
+                    this.adaptiveQuality = Math.max(0.5, this.adaptiveQuality - 0.1);
+                    this.scene.events.fire('quality.decrease', this.adaptiveQuality);
+                    console.log(`📉 FPS 过低 (${this.currentFPS.toFixed(1)}), 降低质量至 ${(this.adaptiveQuality * 100).toFixed(0)}%`);
+                } else if (this.currentFPS > 50 && this.adaptiveQuality < 1.0) {
+                    // 帧率良好，尝试提升质量
+                    this.adaptiveQuality = Math.min(1.0, this.adaptiveQuality + 0.05);
+                    this.scene.events.fire('quality.increase', this.adaptiveQuality);
+                    console.log(`📈 FPS 良好 (${this.currentFPS.toFixed(1)}), 提升质量至 ${(this.adaptiveQuality * 100).toFixed(0)}%`);
+                }
+            }
+        }
+
+        this.frameCount++;
+
         // update underlying values
         this.focalPointTween.update(deltaTime);
         this.azimElevTween.update(deltaTime);
@@ -453,14 +510,17 @@ class Camera extends Element {
         vec.sub2(bound.center, cameraPosition);
         const dist = vec.dot(forwardVec);
 
+        // ===== 移动端视锥剔除优化 =====
+        const nearFactor = this.isMobile ? 1024 * 8 : 1024 * 16;
+
         if (dist > 0) {
             this.far = dist + boundRadius;
             // if camera is placed inside the sphere bound calculate near based far
-            this.near = Math.max(1e-6, dist < boundRadius ? this.far / (1024 * 16) : dist - boundRadius);
+            this.near = Math.max(1e-6, dist < boundRadius ? this.far / nearFactor : dist - boundRadius);
         } else {
             // if the scene is behind the camera
             this.far = boundRadius * 2;
-            this.near = this.far / (1024 * 16);
+            this.near = this.far / nearFactor;
         }
     }
 
@@ -662,6 +722,19 @@ class Camera extends Element {
     endOffscreenMode() {
         this.targetSize = null;
         this.suppressFinalBlit = false;
+    }
+
+    // ===== 性能监控 API =====
+    getCurrentFPS(): number {
+        return this.currentFPS;
+    }
+
+    getAdaptiveQuality(): number {
+        return this.adaptiveQuality;
+    }
+
+    isMobileOptimized(): boolean {
+        return this.isMobile;
     }
 }
 

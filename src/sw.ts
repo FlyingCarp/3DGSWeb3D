@@ -3,7 +3,7 @@ import { version as appVersion } from '../package.json';
 // export default null
 declare let self: ServiceWorkerGlobalScope;
 
-const cacheName = `superSplat-v${appVersion}`;
+const cacheName = `数据驱动材料科研团队 技术支持-v${appVersion}`;
 
 const cacheUrls = [
     './',
@@ -13,8 +13,8 @@ const cacheUrls = [
     './index.js.map',
     './jszip.js',
     './manifest.json',
-    './static/icons/logo-192.png',
-    './static/icons/logo-512.png',
+    './static/icons/Datalogo-192.png',
+    './static/icons/Datalogo-512.png',
     './static/images/screenshot-narrow.jpg',
     './static/images/screenshot-wide.jpg',
     './static/lib/lodepng/lodepng.js',
