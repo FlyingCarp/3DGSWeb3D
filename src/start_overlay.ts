@@ -24,7 +24,7 @@ export class StartOverlay {
     box.style.textAlign = 'center';
     box.style.color = 'white';
     box.innerHTML = `
-      <h1 style="font-size:48px;margin:0 0 20px;">3D 高斯场景查看器</h1>
+      <h1 style="font-size:48px;margin:0 0 20px;">数据驱动材料科研团队</h1>
       <p style="font-size:20px;margin:0 0 50px;">拼命加载中…</p>
     `;
 
