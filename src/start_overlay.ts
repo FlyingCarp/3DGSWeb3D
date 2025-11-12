@@ -47,9 +47,9 @@ export class StartOverlay {
     box.appendChild(btn);
     this.overlay.appendChild(box);
 
-    // ICP 备案信息
-    const icp = document.createElement('div');
-    icp.style.cssText = `
+    // 备案信息容器
+    const footer = document.createElement('div');
+    footer.style.cssText = `
       position: absolute;
       bottom: 20px;
       left: 50%;
@@ -57,7 +57,13 @@ export class StartOverlay {
       color: rgba(255, 255, 255, 0.6);
       font-size: 14px;
       text-align: center;
+      display: flex;
+      flex-direction: column; /* 垂直排列 */
+      gap: 8px; /* 行间距 */
     `;
+
+    // ICP 备案信息
+    const icp = document.createElement('div');
     icp.innerHTML = `
       <a href="https://beian.miit.gov.cn/" 
          target="_blank" 
@@ -65,8 +71,24 @@ export class StartOverlay {
         豫ICP备2025149739号
       </a>
     `;
-    
-    this.overlay.appendChild(icp);
+
+   // 公安备案信息
+    const police = document.createElement('div');
+    police.style.whiteSpace = 'nowrap';          // 关键：不换行
+    police.innerHTML = `
+    <a href="http://www.beian.gov.cn/portal/registerSystemInfo" 
+        target="_blank" 
+        style="color: rgba(255,255,255,.6); text-decoration: none; display: inline-flex; align-items: center;">
+        <img src="/media/images/police-icon.png" 
+            style="width:16px; height:16px; margin-right:5px; flex-shrink:0;">
+        粤公网安备44198202000136号
+    </a>
+    `;
+
+    footer.appendChild(icp);
+    footer.appendChild(police);
+    this.overlay.appendChild(footer);
+
     document.body.appendChild(this.overlay);
   }
 

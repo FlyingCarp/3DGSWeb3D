@@ -1,4 +1,4 @@
-// src/scene-manager.ts - 场景管理器
+// src/scene-manager.ts - 场景管理器（支持第一人称模式切换）
 import { Vec3 } from 'playcanvas';
 import { Events } from './events';
 import { Scene } from './scene';
@@ -14,6 +14,7 @@ interface SceneConfig {
     defaultCameraPos?: Vec3;
     defaultCameraTarget?: Vec3;
     hasPOI?: boolean;  // 是否显示POI
+    useFirstPerson?: boolean;  // ✅ 新增：是否使用第一人称视角
 }
 
 class SceneManager {
@@ -39,11 +40,24 @@ class SceneManager {
         this.scenes.set('main', {
             id: 'main',
             name: '主场景',
-            url: '/media/SplattingFile/SSLake.ply',
-            filename: 'SSLake.ply',
+            url: '/media/SplattingFiles/SSLake_optimized_mobile/meta.json',
+            filename: 'meta.json',
             defaultCameraPos: new Vec3(-3.5739870071411133, 8.027021408081055, 0.7438146471977234),
             defaultCameraTarget: new Vec3(0.9115669929031545, -4.710339847395481, 1.96341514830072),
-            hasPOI: true  // 只有主场景有POI
+            hasPOI: true,
+            useFirstPerson: false  // ✅ 主场景使用轨道模式
+        });
+
+         // A4场景配置（室内）
+        this.scenes.set('319SOG', {
+            id: '319SOG',
+            name: '数据驱动材料科研团队',
+            url: '/media/SplattingFiles/319_pointcosm_optimized/meta.json',
+            filename: 'meta.json',
+            defaultCameraPos: new Vec3(0.17799146473407745, 0.2273823767900467, 1.0555236339569092),
+            defaultCameraTarget: new Vec3(-2.1905466112370635, -2.497009092983879, -5.6743308952218685),
+            hasPOI: false,
+            useFirstPerson: true  // ✅ 室内场景使用第一人称
         });
 
         // A4场景配置
@@ -54,7 +68,8 @@ class SceneManager {
             filename: 'A4_319.ply',
             defaultCameraPos: new Vec3(0, 2, 5),
             defaultCameraTarget: new Vec3(0, 0, 0),
-            hasPOI: false
+            hasPOI: false,
+            useFirstPerson: false
         });
 
         // 可以继续添加更多场景
@@ -63,7 +78,8 @@ class SceneManager {
         //     name: 'B1场景',
         //     url: '/media/SplattingFile/B1.ply',
         //     filename: 'B1.ply',
-        //     hasPOI: false
+        //     hasPOI: false,
+        //     useFirstPerson: false
         // });
 
         console.log(`场景管理器初始化完成，共 ${this.scenes.size} 个场景`);
@@ -168,22 +184,33 @@ class SceneManager {
         console.log(`开始切换到场景: ${sceneConfig.name}`);
 
         try {
+            // ✅ 1. 如果是返回主场景，立即隐藏返回按钮和停用第一人称模式
+            if (sceneId === 'main') {
+                this.hideBackButton();
+                
+                // 立即停用第一人称模式（会移除方向键）
+                const camera = this.scene.camera;
+                if (camera.firstPersonController?.isInFirstPersonMode) {
+                    camera.firstPersonController.deactivate();
+                    console.log('✅ 已提前停用第一人称模式');
+                }
+            }
+
             // 触发场景切换开始事件
             this.events.fire('scene.switchStart', sceneConfig);
 
-            // ✅ 1. 立即隐藏POI（如果目标场景不需要POI）
-            // 这样用户点击后就能立即看到POI消失，提供即时反馈
+            // 2. 立即隐藏POI（如果目标场景不需要POI）
             if (!sceneConfig.hasPOI) {
                 this.updatePOIVisibility(false);
             }
 
-            // 2. 卸载当前场景
+            // 3. 卸载当前场景
             await this.unloadCurrentScene();
 
-            // 3. 加载新场景
+            // 4. 加载新场景
             await this.loadScene(sceneConfig);
 
-            // 4. 设置相机位置
+            // 5. 设置相机位置
             const cameraPos = customCameraPos || sceneConfig.defaultCameraPos;
             const cameraTarget = customCameraTarget || sceneConfig.defaultCameraTarget;
             
@@ -191,31 +218,33 @@ class SceneManager {
                 this.scene.camera.setPose(cameraPos, cameraTarget, 0);
             }
 
-            // 5. 更新当前场景ID
+            // 6. 更新当前场景ID
             this.currentSceneId = sceneId;
 
-            // 6. 控制返回按钮显示
-            if (sceneId === 'main') {
-                this.hideBackButton();
-            } else {
+            // 7. 控制返回按钮显示（针对非主场景）
+            if (sceneId !== 'main') {
                 this.showBackButton();
             }
 
-            // ✅ 7. 再次确认POI显示状态（确保加载完成后状态正确）
+            // 8. 再次确认POI显示状态
             this.updatePOIVisibility(sceneConfig.hasPOI);
 
-            // 8. 触发场景切换完成事件
+            // 9. 管理相机控制模式（针对非主场景）
+            if (sceneId !== 'main') {
+                this.updateCameraMode(sceneConfig, cameraPos, cameraTarget);
+            }
+
+            // 10. 触发场景切换完成事件
             this.events.fire('scene.switchComplete', sceneConfig);
 
-            console.log(`场景切换完成: ${sceneConfig.name}, POI显示: ${sceneConfig.hasPOI}`);
+            console.log(`场景切换完成: ${sceneConfig.name}, POI显示: ${sceneConfig.hasPOI}, 第一人称: ${sceneConfig.useFirstPerson}`);
 
         } catch (error) {
             console.error('场景切换失败:', error);
             this.events.fire('scene.switchError', error);
             alert(`场景切换失败: ${error.message}`);
             
-            // ✅ 错误时尝试恢复POI状态
-            // 如果是从主场景切换失败，应该保持POI显示
+            // 错误时尝试恢复POI状态
             if (this.currentSceneId === 'main') {
                 this.updatePOIVisibility(true);
             }
@@ -261,6 +290,35 @@ class SceneManager {
     // 控制POI的显示/隐藏
     private updatePOIVisibility(showPOI: boolean) {
         this.events.fire('poi.setVisibility', showPOI);
+    }
+
+    // ✅ 新增：管理相机控制模式
+    private updateCameraMode(sceneConfig: SceneConfig, cameraPos?: Vec3, cameraTarget?: Vec3) {
+        const camera = this.scene.camera;
+        
+        if (sceneConfig.useFirstPerson) {
+            // 激活第一人称模式
+            if (!camera.firstPersonController?.isInFirstPersonMode) {
+                // 计算初始朝向
+                const pos = cameraPos || sceneConfig.defaultCameraPos;
+                const target = cameraTarget || sceneConfig.defaultCameraTarget;
+                
+                if (pos && target) {
+                    const direction = new Vec3().sub2(target, pos).normalize();
+                    const yaw = Math.atan2(-direction.x, -direction.z) * (180 / Math.PI);
+                    const pitch = Math.asin(direction.y) * (180 / Math.PI);
+                    
+                    camera.firstPersonController?.activate(pos, yaw, pitch);
+                    console.log('✅ 已激活第一人称模式');
+                }
+            }
+        } else {
+            // 停用第一人称模式，使用轨道模式
+            if (camera.firstPersonController?.isInFirstPersonMode) {
+                camera.firstPersonController?.deactivate();
+                console.log('✅ 已切换到轨道模式');
+            }
+        }
     }
 
     // 获取当前场景ID

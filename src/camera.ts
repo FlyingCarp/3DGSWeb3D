@@ -25,6 +25,8 @@ import {
     WebglGraphicsDevice
 } from 'playcanvas';
 
+import { FirstPersonController } from './first-person-controller';
+
 import { PointerController } from './controllers';
 import { Element, ElementType } from './element';
 import { Serializer } from './serializer';
@@ -94,6 +96,8 @@ class Camera extends Element {
     private adaptiveQuality = 1.0;
     private isMobile = false;
 
+    firstPersonController: FirstPersonController | null = null;
+
     constructor() {
         super(ElementType.camera);
         // create the camera entity
@@ -106,6 +110,8 @@ class Camera extends Element {
         // NOTE: this call is needed for refraction effect to work correctly, but
         // it slows rendering and should only be made when required.
         // this.entity.camera.requestSceneColorMap(true);
+         // ✅ 初始化第一人称控制器
+        this.firstPersonController = new FirstPersonController(this);
     }
 
     // ortho
@@ -449,6 +455,12 @@ class Camera extends Element {
     }
 
     onUpdate(deltaTime: number) {
+         // ✅ 第一人称模式优先
+        if (this.firstPersonController?.isInFirstPersonMode) {
+            this.firstPersonController.update(deltaTime);
+            this.scene.events.fire('camera.moved');
+            return;
+        }
         // controller update
         this.controller.update(deltaTime);
 
@@ -501,6 +513,8 @@ class Camera extends Element {
         const { camera } = this.entity;
         camera.orthoHeight = this.distanceTween.value.distance * this.sceneRadius / this.fovFactor * (this.fov / 90) * (camera.horizontalFov ? this.scene.targetSize.height / this.scene.targetSize.width : 1);
         camera.camera._updateViewProjMat();
+
+        this.scene.events.fire('camera.moved');
     }
 
     fitClippingPlanes(cameraPosition: Vec3, forwardVec: Vec3) {

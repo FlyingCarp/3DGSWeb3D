@@ -3,6 +3,7 @@ import { Color, createGraphicsDevice } from 'playcanvas';
 import { registerCameraPosesEvents } from './camera-poses';
 import { POISystem } from './poi-system';
 import { StartOverlay } from './start_overlay';
+import { SwipeUpMenu } from './swipe-up-menu';
 
 import { Vec3 } from 'playcanvas';
 import { SceneManager } from './scene-manager';
@@ -282,12 +283,14 @@ const main = async () => {
     const camera = scene.camera;
     camera.setPose(
         /*
-      position: {x: -3.1661136150360107,  0.09750718623399734,  -1.3463666439056396} 
-      target: {x: 1.3880620386053981,  -3.2992265554911486,  -1.663968201960596}
+        const p = window.scene.events.invoke('camera.getPose');
+        console.log('position:', p.position, 'target:', p.target);
+      position: {x: -0.6095404028892517, y: 13.290792465209961, z: 1.413893699645996} 
+      target: {x: 1.5247941382750358, y: -3.1958051650883643, z: 1.2421688179857506}
 
         */
-        new Vec3( -3.1661136150360107,  0.09750718623399734,  -1.3463666439056396),
-        new Vec3(1.3880620386053981,  -3.2992265554911486,  -1.663968201960596),
+        new Vec3( -0.16939443349838257,  9.890899658203125,  1.378480315208435),
+        new Vec3(1.5247941382750358, -3.1958051650883643,  1.2421688179857506),
         0
     );
     
@@ -299,6 +302,9 @@ const main = async () => {
     
     (window as any).poiSystem = poiSystem;
     startOverlay.hide();
+    // const swipeUpMenu = new SwipeUpMenu(scene , events);
+    // (window as any).swipeUpMenu = swipeUpMenu;
+    //暂时先关掉上划菜单，因为还没有开发完善
     // ✅ 5. 使用事件系统更新POI和场景管理器
     events.on('update', (deltaTime: number) => {
         poiSystem.update(deltaTime); 
