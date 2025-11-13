@@ -324,24 +324,24 @@ class POISystem {
         `;
 
         // 图标单元格
-        const iconCell = document.createElement('div');
-        iconCell.style.cssText = `
-            display: table-cell;
-            vertical-align: middle;
-            padding-right: 6px;
-        `;
+        // const iconCell = document.createElement('div');
+        // iconCell.style.cssText = `
+        //     display: table-cell;
+        //     vertical-align: middle;
+        //     padding-right: 6px;
+        // `;
 
-        // POI 图标
-        const icon = document.createElement('div');
-        icon.style.cssText = `
-            width: 32px;
-            height: 32px;
-            background-image: url('/media/images/poi-icon.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-        `;
-        iconCell.appendChild(icon);
+        // // POI 图标
+        // const icon = document.createElement('div');
+        // icon.style.cssText = `
+        //     width: 32px;
+        //     height: 32px;
+        //     background-image: url('/media/images/poi-icon.png');
+        //     background-size: contain;
+        //     background-repeat: no-repeat;
+        //     background-position: center;
+        // `;
+        // iconCell.appendChild(icon);
 
         // 文字单元格
         const textCell = document.createElement('div');
@@ -367,7 +367,7 @@ class POISystem {
         `;
         textCell.appendChild(label);
 
-        container.appendChild(iconCell);
+        // container.appendChild(iconCell);
         container.appendChild(textCell);
         wrapper.appendChild(container);
 
