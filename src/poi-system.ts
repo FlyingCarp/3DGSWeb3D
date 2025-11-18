@@ -523,7 +523,7 @@ class POISystem {
         // 判断是否需要切换场景
         if (poi.targetSceneId) {
             // 需要切换场景
-            const message = `${poi.name}\n\n将切换到新场景,大约10秒加载时间，是否继续?`;
+            const message = `${poi.name}在A4栋319\n\n将切换到新场景,大约10秒加载时间，是否继续?`;
             const result = confirm(message);
             
             if (result) {

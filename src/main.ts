@@ -305,7 +305,6 @@ const main = async () => {
     startOverlay.hide();
     const swipeUpMenu = new SwipeUpMenu(scene , events);
     (window as any).swipeUpMenu = swipeUpMenu;
-    //暂时先关掉上划菜单，因为还没有开发完善
     // ✅ 5. 使用事件系统更新POI和场景管理器
     events.on('update', (deltaTime: number) => {
         poiSystem.update(deltaTime); 

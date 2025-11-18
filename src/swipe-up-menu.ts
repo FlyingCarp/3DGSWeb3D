@@ -8,6 +8,7 @@ interface BuildingInfo {
     icon: string;
     position: Vec3;
     target: Vec3;
+    message?: string;
 }
 
 interface ConferenceSchedule {
@@ -28,16 +29,18 @@ class SwipeUpMenu {
     // 建筑信息配置
     private buildings: BuildingInfo[] = [
         {
-            name: '酒店',
+            name: '招待所',
             icon: '🏨',
             position: new Vec3(1.0714532136917114, 0.17564377188682556, -1.8519530296325684),
-            target: new Vec3(-0.782445021782728, -2.5086924706317775, -3.131205334997997)
+            target: new Vec3(-0.782445021782728, -2.5086924706317775, -3.131205334997997),
+            message:'招待所位置在A1如图所示位置，在餐厅正对面，湖边'
         },
         {
             name: '食堂',
             icon: '🍽️',
             position: new Vec3(-1.8875062465667725, -0.14047487080097198, -1.690224289894104),
-            target: new Vec3(0.6187147327250981, -3.2034843419990495, -3.7778125648765286)
+            target: new Vec3(0.6187147327250981, -3.2034843419990495, -3.7778125648765286),
+            message:'食堂位置在A1如图所示位置，在招待所正对面，湖边'
         },
         {
             name: '会议中心',
@@ -49,7 +52,8 @@ class SwipeUpMenu {
             name: '便利店',
             icon: '🏪',
             position: new Vec3(1.000038743019104, 0.4574660658836365, -0.8368762135505676),
-            target: new Vec3(2.834293089475086, -0.8925182739336803, -0.19787027681636282)
+            target: new Vec3(2.834293089475086, -0.8925182739336803, -0.19787027681636282),
+            message:'便利店位置在B3宿舍楼正下方，快递收发中心也在这里'
         }
     ];
 
@@ -699,7 +703,9 @@ class SwipeUpMenu {
 
     private focusBuilding(building: BuildingInfo) {
         console.log(`聚焦建筑: ${building.name}`);
-        
+        // 显示确认对话框
+        const message = `${building.message}`;
+        const result = confirm(message);
         // 使用相机的 setPose 方法聚焦建筑
         this.scene.camera.setPose(
             building.position,
