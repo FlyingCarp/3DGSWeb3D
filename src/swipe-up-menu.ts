@@ -704,8 +704,9 @@ class SwipeUpMenu {
     private focusBuilding(building: BuildingInfo) {
         console.log(`聚焦建筑: ${building.name}`);
         // 显示确认对话框
+        if(building.message){
         const message = `${building.message}`;
-        const result = confirm(message);
+        const result = confirm(message);}
         // 使用相机的 setPose 方法聚焦建筑
         this.scene.camera.setPose(
             building.position,
