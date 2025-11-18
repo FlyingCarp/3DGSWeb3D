@@ -32,53 +32,37 @@ class SwipeUpMenu {
             icon: '🏨',
             position: new Vec3(1.0714532136917114, 0.17564377188682556, -1.8519530296325684),
             target: new Vec3(-0.782445021782728, -2.5086924706317775, -3.131205334997997)
-            /*
-            position: {1.0714532136917114, y: 0.17564377188682556, z: -1.8519530296325684} 
-            target: {-0.782445021782728, y: -2.5086924706317775, z: -3.131205334997997}
-            */
         },
         {
             name: '食堂',
             icon: '🍽️',
             position: new Vec3(-1.8875062465667725, -0.14047487080097198, -1.690224289894104),
             target: new Vec3(0.6187147327250981, -3.2034843419990495, -3.7778125648765286)
-            /*
-            position: {-1.8875062465667725, -0.14047487080097198, -1.690224289894104} 
-            target: {0.6187147327250981, -3.2034843419990495, -3.7778125648765286}
-            */
         },
         {
             name: '会议中心',
             icon: '🏢',
             position: new Vec3(-3.280106544494629, 0.20584993064403534, 4.102974891662598),
             target: new Vec3(0.7615767462027138, -2.530067489944535, 2.913978157741491)
-            /*
-            position: {-3.280106544494629, 0.20584993064403534, 4.102974891662598}
-             target: {0.7615767462027138, -2.530067489944535, 2.913978157741491}
-            */
         },
         {
             name: '便利店',
             icon: '🏪',
             position: new Vec3(1.000038743019104, 0.4574660658836365, -0.8368762135505676),
             target: new Vec3(2.834293089475086, -0.8925182739336803, -0.19787027681636282)
-            /*
-            position: {1.000038743019104, 0.4574660658836365, -0.8368762135505676} 
-            target: {2.834293089475086, -0.8925182739336803, -0.19787027681636282}
-            */
         }
     ];
 
     // 会议日程数据
     private morningSchedule: ConferenceSchedule[] = [
         { time: '8:00-8:30', speaker: 'Sign in' },
-        { time: '8:30-8:40', speaker: 'Wei-Hua Wang' },
+        { time: '8:30-8:40', speaker: 'Yong-Ming Sheng' },
         { time: '8:40-9:30', speaker: 'Peter Harrowell' },
-        { time: '9:30-10:20', speaker: 'Yang Sun' },
+        { time: '9:30-10:20', speaker: 'Gang Sun' },
         { time: '10:20-10:35', speaker: 'Coffee Break' },
         { time: '10:35-11:25', speaker: 'Vladimir Novikov' },
-        { time: '11:25-12:15', speaker: 'Gang Sun' },
-        { time: '12:15-12:20', speaker: 'Secret Session' },
+        { time: '11:25-12:15', speaker: 'Yang Sun/Fujie Tang' },
+        { time: '12:15-12:20', speaker: 'Yu Cui/Yi-Qi wang' },
         { time: 'Lunch time', speaker: 'SLAB Canteen' }
     ];
 
@@ -171,10 +155,10 @@ class SwipeUpMenu {
         this.toggleButton.appendChild(indicator);
         this.toggleButton.appendChild(this.toggleHint);
 
-        // ✅ 菜单内容 - 使用更大的底部留白确保内容可见
+        // 菜单内容
         this.menuContent = document.createElement('div');
         this.menuContent.className = 'menu-content';
-            this.menuContent.style.cssText = `
+        this.menuContent.style.cssText = `
             padding: 0 20px 100px;
             overflow-y: auto;
             overflow-x: hidden;
@@ -396,11 +380,12 @@ class SwipeUpMenu {
             
             row.style.cssText = `
                 display: grid;
-                grid-template-columns: ${isSpecialRow ? '1fr 1fr' : '110px 1fr'};
+                grid-template-columns: ${isSpecialRow ? '110px 1fr' : '110px 1fr'};
                 padding: 12px 15px;
                 border-bottom: ${index < schedule.length - 1 ? '1px solid #f0f0f0' : 'none'};
                 transition: background 0.2s;
                 ${isSpecialRow ? 'background: #f8f8f8; font-weight: 500;' : ''}
+                align-items: center;
             `;
 
             if (!isSpecialRow) {
@@ -419,6 +404,8 @@ class SwipeUpMenu {
                 font-size: 13px;
                 color: ${isSpecialRow ? '#333' : '#1890ff'};
                 font-weight: ${isSpecialRow ? '600' : '500'};
+                text-align: center;
+                display: block;
             `;
 
             const speaker = document.createElement('span');
@@ -426,6 +413,8 @@ class SwipeUpMenu {
             speaker.style.cssText = `
                 font-size: 14px;
                 color: #333;
+                text-align: center;
+                display: block;
             `;
 
             row.appendChild(time);
@@ -437,7 +426,7 @@ class SwipeUpMenu {
         return table;
     }
 
-    // ✅ 新增：处理视口变化
+    // 处理视口变化
     private handleViewportResize() {
         // 监听窗口大小变化（包括地址栏隐藏/显示）
         let resizeTimer: number;
@@ -459,7 +448,7 @@ class SwipeUpMenu {
         });
     }
 
-    // ✅ 新增：动态更新容器高度
+    // 动态更新容器高度
     private updateContainerHeight() {
         // 使用 window.innerHeight 获取实际可用高度
         const actualHeight = window.innerHeight;
@@ -581,7 +570,7 @@ class SwipeUpMenu {
             lastTap = currentTime;
         });
 
-        // ✅ 监听 visualViewport 变化（地址栏隐藏/显示）
+        // 监听 visualViewport 变化（地址栏隐藏/显示）
         if (window.visualViewport) {
             window.visualViewport.addEventListener('resize', () => {
                 this.updateContainerHeight();
@@ -611,12 +600,10 @@ class SwipeUpMenu {
         this.isExpanded = true;
         this.isFullyExpanded = false;
         
-        // ✅ 使用实际高度计算
+        // 使用实际高度计算
         const actualHeight = window.innerHeight;
         const targetHeight = actualHeight * 0.5;
         this.container.style.transform = `translateY(${actualHeight - targetHeight}px)`;
-
-
         
         const indicator = this.toggleButton.querySelector('.toggle-indicator') as HTMLElement;
         if (indicator) {
@@ -649,7 +636,7 @@ class SwipeUpMenu {
         this.isExpanded = true;
         this.isFullyExpanded = true;
         
-        // ✅ 使用实际高度计算，并留出安全边距
+        // 使用实际高度计算，并留出安全边距
         const actualHeight = window.innerHeight;
         const safeTopMargin = 20; // 顶部留20px安全边距
         this.container.style.transform = `translateY(${safeTopMargin}px)`;
@@ -680,7 +667,7 @@ class SwipeUpMenu {
         this.isExpanded = false;
         this.isFullyExpanded = false;
         
-        // ✅ 使用实际高度计算
+        // 使用实际高度计算
         const actualHeight = window.innerHeight;
         this.container.style.transform = `translateY(${actualHeight - 45}px)`;
         
