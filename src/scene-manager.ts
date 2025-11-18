@@ -42,8 +42,10 @@ class SceneManager {
             name: '主场景',
             url: '/media/SplattingFiles/SSLake_optimized_mobile/meta.json',
             filename: 'meta.json',
-            defaultCameraPos: new Vec3(-3.5739870071411133, 8.027021408081055, 0.7438146471977234),
-            defaultCameraTarget: new Vec3(0.9115669929031545, -4.710339847395481, 1.96341514830072),
+        //     new Vec3(-0.9698182940483093, 14.009113311767578, 0.6221892237663269),
+        // new Vec3(0.4599280162343439, -3.2157504006882185, 1.2649517576828482),
+            defaultCameraPos: new Vec3(-0.9698182940483093, 14.009113311767578, 0.6221892237663269),
+            defaultCameraTarget: new Vec3(0.4599280162343439, -3.2157504006882185, 1.2649517576828482),
             hasPOI: true,
             useFirstPerson: false  // ✅ 主场景使用轨道模式
         });

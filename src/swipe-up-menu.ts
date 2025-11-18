@@ -1,3 +1,4 @@
+// src/swipe-up-menu.ts
 import { Vec3 } from 'playcanvas';
 import { Events } from './events';
 import { Scene } from './scene';
@@ -11,14 +12,14 @@ interface BuildingInfo {
 
 interface ConferenceSchedule {
     time: string;
-    event: string;
-    speaker?: string;
+    speaker: string;
 }
 
 class SwipeUpMenu {
     private container: HTMLElement;
     private menuContent: HTMLElement;
     private toggleButton: HTMLElement;
+    private toggleHint: HTMLElement;
     private isExpanded: boolean = false;
     private isFullyExpanded: boolean = false;
     private events: Events;
@@ -29,46 +30,68 @@ class SwipeUpMenu {
         {
             name: '酒店',
             icon: '🏨',
-            position: new Vec3(-5, 0, -5),
-            target: new Vec3(-5, -2, -5)
+            position: new Vec3(1.0714532136917114, 0.17564377188682556, -1.8519530296325684),
+            target: new Vec3(-0.782445021782728, -2.5086924706317775, -3.131205334997997)
+            /*
+            position: {1.0714532136917114, y: 0.17564377188682556, z: -1.8519530296325684} 
+            target: {-0.782445021782728, y: -2.5086924706317775, z: -3.131205334997997}
+            */
         },
         {
             name: '食堂',
             icon: '🍽️',
-            position: new Vec3(5, 0, -5),
-            target: new Vec3(5, -2, -5)
+            position: new Vec3(-1.8875062465667725, -0.14047487080097198, -1.690224289894104),
+            target: new Vec3(0.6187147327250981, -3.2034843419990495, -3.7778125648765286)
+            /*
+            position: {-1.8875062465667725, -0.14047487080097198, -1.690224289894104} 
+            target: {0.6187147327250981, -3.2034843419990495, -3.7778125648765286}
+            */
         },
         {
             name: '会议中心',
             icon: '🏢',
-            position: new Vec3(-5, 0, 5),
-            target: new Vec3(-5, -2, 5)
+            position: new Vec3(-3.280106544494629, 0.20584993064403534, 4.102974891662598),
+            target: new Vec3(0.7615767462027138, -2.530067489944535, 2.913978157741491)
+            /*
+            position: {-3.280106544494629, 0.20584993064403534, 4.102974891662598}
+             target: {0.7615767462027138, -2.530067489944535, 2.913978157741491}
+            */
         },
         {
             name: '便利店',
             icon: '🏪',
-            position: new Vec3(5, 0, 5),
-            target: new Vec3(5, -2, 5)
+            position: new Vec3(1.000038743019104, 0.4574660658836365, -0.8368762135505676),
+            target: new Vec3(2.834293089475086, -0.8925182739336803, -0.19787027681636282)
+            /*
+            position: {1.000038743019104, 0.4574660658836365, -0.8368762135505676} 
+            target: {2.834293089475086, -0.8925182739336803, -0.19787027681636282}
+            */
         }
     ];
 
-    // 会议日程数据（从PDF提取）
+    // 会议日程数据
     private morningSchedule: ConferenceSchedule[] = [
-        { time: '8:00-8:30', event: 'Sign in' },
-        { time: '8:30-8:40', event: 'Opening', speaker: 'Wei-Hua Wang' },
-        { time: '8:40-9:40', event: 'Talk', speaker: 'Peter Harrowell' },
-        { time: '9:40-9:55', event: 'Coffee Break' },
-        { time: '9:55-10:55', event: 'Talk', speaker: 'Gang Sun' },
-        { time: '10:55-11:55', event: 'Talk', speaker: 'Yang Sun' }
+        { time: '8:00-8:30', speaker: 'Sign in' },
+        { time: '8:30-8:40', speaker: 'Wei-Hua Wang' },
+        { time: '8:40-9:30', speaker: 'Peter Harrowell' },
+        { time: '9:30-10:20', speaker: 'Yang Sun' },
+        { time: '10:20-10:35', speaker: 'Coffee Break' },
+        { time: '10:35-11:25', speaker: 'Vladimir Novikov' },
+        { time: '11:25-12:15', speaker: 'Gang Sun' },
+        { time: '12:15-12:20', speaker: 'Secret Session' },
+        { time: 'Lunch time', speaker: 'SLAB Canteen' }
     ];
 
     private afternoonSchedule: ConferenceSchedule[] = [
-        { time: '13:15-14:15', event: 'Talk', speaker: 'Yun-Jiang Wang' },
-        { time: '14:15-15:15', event: 'Talk', speaker: 'Yan-Wei Li' },
-        { time: '15:15-15:30', event: 'Coffee Break' },
-        { time: '15:30-16:30', event: 'Talk', speaker: 'Hai-Bin Yu' },
-        { time: '16:30-17:30', event: 'Talk', speaker: 'Yuan-Chao Hu' },
-        { time: '17:30-18:00', event: 'Free Discussion & Closing Remarks' }
+        { time: '13:30-14:20', speaker: 'Bo Zhang' },
+        { time: '14:20-15:10', speaker: 'Yun-Jiang Wang' },
+        { time: '15:10-15:30', speaker: 'Yan-Wei Li' },
+        { time: '15:30-16:20', speaker: 'Coffee Break' },
+        { time: '16:20-17:10', speaker: 'Hai-Bin Yu' },
+        { time: '17:10-18:00', speaker: 'Yuan-Chao Hu' },
+        { time: '18:00-18:30', speaker: 'Free Discussion' },
+        { time: '18:30-18:40', speaker: 'Closing Remark' },
+        { time: 'Dinner time', speaker: 'SLAB Canteen' }
     ];
 
     constructor(scene: Scene, events: Events) {
@@ -76,6 +99,7 @@ class SwipeUpMenu {
         this.events = events;
         this.createMenu();
         this.attachEventListeners();
+        this.handleViewportResize();
     }
 
     private createMenu() {
@@ -93,8 +117,11 @@ class SwipeUpMenu {
             transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             transform: translateY(calc(100% - 45px));
             height: 100vh;
+            max-height: 100dvh;
             overflow: hidden;
             z-index: 1000;
+            display: flex;
+            flex-direction: column;
         `;
 
         // 展开/收起按钮
@@ -122,11 +149,11 @@ class SwipeUpMenu {
             transition: all 0.3s;
         `;
         
-        // 提示文字（收起时显示）
-        const toggleHint = document.createElement('div');
-        toggleHint.className = 'toggle-hint';
-        toggleHint.textContent = '上划展开';
-        toggleHint.style.cssText = `
+        // 提示文字（只在收起时显示）
+        this.toggleHint = document.createElement('div');
+        this.toggleHint.className = 'toggle-hint';
+        this.toggleHint.textContent = '上划展开';
+        this.toggleHint.style.cssText = `
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
@@ -142,17 +169,36 @@ class SwipeUpMenu {
         `;
         
         this.toggleButton.appendChild(indicator);
-        this.toggleButton.appendChild(toggleHint);
+        this.toggleButton.appendChild(this.toggleHint);
 
-        // 菜单内容
+        // ✅ 菜单内容 - 使用更大的底部留白确保内容可见
         this.menuContent = document.createElement('div');
         this.menuContent.className = 'menu-content';
-        this.menuContent.style.cssText = `
-            padding: 0 20px 20px;
+            this.menuContent.style.cssText = `
+            padding: 0 20px 100px;
             overflow-y: auto;
-            height: calc(100vh - 45px);
+            overflow-x: hidden;
+            flex: 1;
             background: rgba(255, 255, 255, 0.98);
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
         `;
+
+        // 隐藏滚动条样式
+        const style = document.createElement('style');
+        style.textContent = `
+            .menu-content::-webkit-scrollbar {
+                display: none;
+            }
+            
+            /* 优化移动端滚动 */
+            .menu-content {
+                -webkit-overflow-scrolling: touch;
+            }
+        `;
+        document.head.appendChild(style);
 
         // 建筑图标区域
         const buildingsSection = this.createBuildingsSection();
@@ -249,19 +295,24 @@ class SwipeUpMenu {
         `;
 
         const title = document.createElement('h3');
-        title.textContent = '会议日程 - 金属玻璃科学研讨会';
+        title.textContent = 'One-day Seminar on Metallic Glass Science';
         title.style.cssText = `
             font-size: 18px;
             font-weight: 600;
-            margin: 0 0 10px 0;
+            margin: 0 0 8px 0;
             color: #333;
+            line-height: 1.4;
         `;
 
         const subtitle = document.createElement('div');
-        subtitle.textContent = '松山湖材料实验室 | 2025年11月21日 | C栋204室';
+        subtitle.innerHTML = `
+            <div style="margin-bottom: 4px; color: #666;">Data-driven Materials Science Research Group</div>
+            <div style="margin-bottom: 4px; color: #666;">Meeting Time: Nov 21, 2025</div>
+            <div style="margin-bottom: 4px; color: #666;">Time Schedule: 35 mins talk + 15 mins discussion</div>
+            <div style="color: #666;">Meeting Place: Building C, Room 204</div>
+        `;
         subtitle.style.cssText = `
             font-size: 13px;
-            color: #666;
             margin-bottom: 15px;
         `;
 
@@ -290,24 +341,26 @@ class SwipeUpMenu {
 
         // 上午日程
         const morningTitle = document.createElement('h4');
-        morningTitle.textContent = '上午场次（主持：Yuan-Chao Hu）';
+        morningTitle.innerHTML = 'Morning Session<br><span style="font-size: 13px; font-weight: normal; color: #888;">Chair: Yuan-Chao Hu</span>';
         morningTitle.style.cssText = `
             font-size: 15px;
             font-weight: 600;
             margin: 15px 0 10px 0;
             color: #555;
+            line-height: 1.6;
         `;
 
         const morningTable = this.createScheduleTable(this.morningSchedule);
 
         // 下午日程
         const afternoonTitle = document.createElement('h4');
-        afternoonTitle.textContent = '下午场次（主持：Gang Sun）';
+        afternoonTitle.innerHTML = 'Afternoon Session<br><span style="font-size: 13px; font-weight: normal; color: #888;">Chair: Gang Sun</span>';
         afternoonTitle.style.cssText = `
             font-size: 15px;
             font-weight: 600;
             margin: 20px 0 10px 0;
             color: #555;
+            line-height: 1.6;
         `;
 
         const afternoonTable = this.createScheduleTable(this.afternoonSchedule);
@@ -332,57 +385,93 @@ class SwipeUpMenu {
             border-radius: 8px;
             overflow: hidden;
             border: 1px solid #e0e0e0;
+            margin-bottom: 15px;
         `;
 
         schedule.forEach((item, index) => {
             const row = document.createElement('div');
+            
+            // 特殊处理午餐和晚餐时间
+            const isSpecialRow = item.time.includes('time');
+            
             row.style.cssText = `
                 display: grid;
-                grid-template-columns: 100px 1fr auto;
+                grid-template-columns: ${isSpecialRow ? '1fr 1fr' : '110px 1fr'};
                 padding: 12px 15px;
                 border-bottom: ${index < schedule.length - 1 ? '1px solid #f0f0f0' : 'none'};
                 transition: background 0.2s;
+                ${isSpecialRow ? 'background: #f8f8f8; font-weight: 500;' : ''}
             `;
 
-            row.addEventListener('mouseenter', () => {
-                row.style.background = '#f5f5f5';
-            });
+            if (!isSpecialRow) {
+                row.addEventListener('mouseenter', () => {
+                    row.style.background = '#f5f5f5';
+                });
 
-            row.addEventListener('mouseleave', () => {
-                row.style.background = 'white';
-            });
+                row.addEventListener('mouseleave', () => {
+                    row.style.background = 'white';
+                });
+            }
 
             const time = document.createElement('span');
             time.textContent = item.time;
             time.style.cssText = `
                 font-size: 13px;
-                color: #1890ff;
-                font-weight: 500;
+                color: ${isSpecialRow ? '#333' : '#1890ff'};
+                font-weight: ${isSpecialRow ? '600' : '500'};
             `;
 
-            const event = document.createElement('span');
-            event.textContent = item.event;
-            event.style.cssText = `
+            const speaker = document.createElement('span');
+            speaker.textContent = item.speaker;
+            speaker.style.cssText = `
                 font-size: 14px;
                 color: #333;
             `;
 
-            const speaker = document.createElement('span');
-            speaker.textContent = item.speaker || '';
-            speaker.style.cssText = `
-                font-size: 13px;
-                color: #888;
-                font-style: italic;
-            `;
-
             row.appendChild(time);
-            row.appendChild(event);
             row.appendChild(speaker);
 
             table.appendChild(row);
         });
 
         return table;
+    }
+
+    // ✅ 新增：处理视口变化
+    private handleViewportResize() {
+        // 监听窗口大小变化（包括地址栏隐藏/显示）
+        let resizeTimer: number;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = window.setTimeout(() => {
+                this.updateContainerHeight();
+            }, 150);
+        });
+
+        // 初始化时也更新一次
+        this.updateContainerHeight();
+
+        // 监听 orientationchange（设备旋转）
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                this.updateContainerHeight();
+            }, 200);
+        });
+    }
+
+    // ✅ 新增：动态更新容器高度
+    private updateContainerHeight() {
+        // 使用 window.innerHeight 获取实际可用高度
+        const actualHeight = window.innerHeight;
+        const visualViewportHeight = window.visualViewport?.height || actualHeight;
+        
+        // 使用较小的值确保内容不被遮挡
+        const safeHeight = Math.min(actualHeight, visualViewportHeight);
+        
+        this.container.style.height = `${safeHeight}px`;
+        this.menuContent.style.height = `${safeHeight - 45}px`;
+        
+        console.log(`📐 视口更新: 实际高度=${actualHeight}px, 视觉高度=${visualViewportHeight}px, 安全高度=${safeHeight}px`);
     }
 
     private attachEventListeners() {
@@ -491,6 +580,17 @@ class SwipeUpMenu {
             }
             lastTap = currentTime;
         });
+
+        // ✅ 监听 visualViewport 变化（地址栏隐藏/显示）
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', () => {
+                this.updateContainerHeight();
+            });
+
+            window.visualViewport.addEventListener('scroll', () => {
+                this.updateContainerHeight();
+            });
+        }
     }
 
     private toggle() {
@@ -511,12 +611,20 @@ class SwipeUpMenu {
         this.isExpanded = true;
         this.isFullyExpanded = false;
         
-        this.container.style.transform = 'translateY(calc(100vh - 50vh))';
+        // ✅ 使用实际高度计算
+        const actualHeight = window.innerHeight;
+        const targetHeight = actualHeight * 0.5;
+        this.container.style.transform = `translateY(${actualHeight - targetHeight}px)`;
+
+
         
-        const indicator = this.toggleButton.querySelector('div') as HTMLElement;
+        const indicator = this.toggleButton.querySelector('.toggle-indicator') as HTMLElement;
         if (indicator) {
             indicator.style.transform = 'rotate(180deg)';
         }
+
+        // 隐藏"上划展开"提示文字
+        this.toggleHint.style.opacity = '0';
 
         // 显示预览提示
         const previewHint = this.container.querySelector('.preview-hint') as HTMLElement;
@@ -541,7 +649,13 @@ class SwipeUpMenu {
         this.isExpanded = true;
         this.isFullyExpanded = true;
         
-        this.container.style.transform = 'translateY(calc(100vh - 90vh))';
+        // ✅ 使用实际高度计算，并留出安全边距
+        const actualHeight = window.innerHeight;
+        const safeTopMargin = 20; // 顶部留20px安全边距
+        this.container.style.transform = `translateY(${safeTopMargin}px)`;
+
+        // 隐藏"上划展开"提示文字
+        this.toggleHint.style.opacity = '0';
 
         // 隐藏预览提示
         const previewHint = this.container.querySelector('.preview-hint') as HTMLElement;
@@ -566,12 +680,17 @@ class SwipeUpMenu {
         this.isExpanded = false;
         this.isFullyExpanded = false;
         
-        this.container.style.transform = 'translateY(calc(100% - 45px))';
+        // ✅ 使用实际高度计算
+        const actualHeight = window.innerHeight;
+        this.container.style.transform = `translateY(${actualHeight - 45}px)`;
         
-        const indicator = this.toggleButton.querySelector('div') as HTMLElement;
+        const indicator = this.toggleButton.querySelector('.toggle-indicator') as HTMLElement;
         if (indicator) {
             indicator.style.transform = 'rotate(0deg)';
         }
+
+        // 显示"上划展开"提示文字
+        this.toggleHint.style.opacity = '1';
 
         // 隐藏所有内容
         const previewHint = this.container.querySelector('.preview-hint') as HTMLElement;
@@ -631,3 +750,4 @@ class SwipeUpMenu {
 }
 
 export { SwipeUpMenu, BuildingInfo };
+
