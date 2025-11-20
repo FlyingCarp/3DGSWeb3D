@@ -65,8 +65,8 @@ class SwipeUpMenu {
         { time: '9:30-10:20', speaker: 'Gang Sun' },
         { time: '10:20-10:35', speaker: 'Coffee Break' },
         { time: '10:35-11:25', speaker: 'Vladimir Novikov' },
-        { time: '11:25-12:15', speaker: 'Yang Sun/Fujie Tang' },
-        { time: '12:15-12:20', speaker: 'Yu Cui/Yi-Qi wang' },
+        { time: '11:25-12:15', speaker: 'Yang Sun / Fujie Tang' },
+        { time: '12:15-12:25', speaker: 'Yu Cui / Yi-Qi Wang' },
         { time: 'Lunch time', speaker: 'SLAB Canteen' }
     ];
 
@@ -196,6 +196,10 @@ class SwipeUpMenu {
 
         this.menuContent.appendChild(buildingsSection);
         this.menuContent.appendChild(conferenceSection);
+
+        // 联系我们
+        const contactSection = this.createContactSection();
+        this.menuContent.appendChild(contactSection);
 
         this.container.appendChild(this.toggleButton);
         this.container.appendChild(this.menuContent);
@@ -363,6 +367,37 @@ class SwipeUpMenu {
         section.appendChild(previewHint);
         section.appendChild(fullSchedule);
 
+        return section;
+    }
+    private createContactSection(): HTMLElement {
+        const section = document.createElement('div');
+        section.className = 'contact-section';
+        section.style.cssText = `
+            margin-top: 30px;
+            padding: 20px 0 40px;
+            text-align: center;
+            font-size: 14px;
+            color: #555;
+            border-top: 1px solid #e0e0e0;
+        `;
+
+        const label = document.createElement('div');
+        label.textContent = '联系我们：';
+        label.style.marginBottom = '6px';
+
+        const mail = document.createElement('a');
+        mail.href = 'mailto:yuanchao.hu@sslab.org.cn';
+        mail.textContent = 'yuanchao.hu@sslab.org.cn';
+        mail.style.cssText = `
+            color: #1890ff;
+            font-weight: 500;
+            text-decoration: none;
+        `;
+        mail.addEventListener('mouseenter', () => mail.style.textDecoration = 'underline');
+        mail.addEventListener('mouseleave', () => mail.style.textDecoration = 'none');
+
+        section.appendChild(label);
+        section.appendChild(mail);
         return section;
     }
 
