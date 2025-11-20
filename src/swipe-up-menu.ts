@@ -65,7 +65,7 @@ class SwipeUpMenu {
         { time: '9:30-10:20', speaker: 'Gang Sun' },
         { time: '10:20-10:35', speaker: 'Coffee Break' },
         { time: '10:35-11:25', speaker: 'Vladimir Novikov' },
-        { time: '11:25-12:15', speaker: 'Yang Sun / Fujie Tang' },
+        { time: '11:25-12:15', speaker: 'Yang Sun' },
         { time: '12:15-12:25', speaker: 'Yu Cui / Yi-Qi Wang' },
         { time: 'Lunch time', speaker: 'SLAB Canteen' }
     ];
