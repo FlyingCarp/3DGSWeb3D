@@ -73,12 +73,12 @@ class SwipeUpMenu {
     private afternoonSchedule: ConferenceSchedule[] = [
         { time: '13:30-14:20', speaker: 'Bo Zhang' },
         { time: '14:20-15:10', speaker: 'Yun-Jiang Wang' },
-        { time: '15:10-15:30', speaker: 'Yan-Wei Li' },
-        { time: '15:30-16:20', speaker: 'Coffee Break' },
-        { time: '16:20-17:10', speaker: 'Hai-Bin Yu' },
-        { time: '17:10-18:00', speaker: 'Yuan-Chao Hu' },
-        { time: '18:00-18:30', speaker: 'Free Discussion' },
-        { time: '18:30-18:40', speaker: 'Closing Remark' },
+        { time: '15:10-16:00', speaker: 'Yan-Wei Li' },
+        { time: '16:00-16:15', speaker: 'Coffee Break' },
+        { time: '16:15-17:05', speaker: 'Hai-Bin Yu' },
+        { time: '17:05-17:55', speaker: 'Yuan-Chao Hu' },
+        { time: '17:55-18:25', speaker: 'Free Discussion' },
+        { time: '18:25-18:35', speaker: 'Closing Remark' },
         { time: 'Dinner time', speaker: 'SLAB Canteen' }
     ];
 
